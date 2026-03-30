@@ -1,6 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Ramón Balcázar Bienes Raíces</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial;
+  margin: 0;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+}
+
+/* CONTENEDOR */
+.premium-calc {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  max-width: 420px;
+  margin: 40px auto;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+/* TITULO */
+h2 {
+  margin-bottom: 10px;
+}
+
+/* CÍRCULO */
+.circle {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  margin: 20px auto;
+  background: conic-gradient(#22c55e 0%, #e5e7eb 0%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inner {
+  background: white;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.inner span {
+  font-size: 42px;
+  font-weight: bold;
+  color: #22c55e;
+}
+
+.inner p {
+  margin: 0;
+}
+
+/* INPUTS */
+.inputs {
+  display: grid;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+input {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+/* BOTÓN CALCULAR */
+button {
+  margin-top: 15px;
+  width: 100%;
+  padding: 12px;
+  background: #0f172a;
+  color: white;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+/* DETALLES */
+.details {
+  margin-top: 15px;
+  text-align: left;
+  font-size: 14px;
+}
+
+/* CTA */
+.cta {
+  display: block;
+  margin-top: 20px;
+  padding: 14px;
+  background: #25D366;
+  color: white;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* TEXTO EXTRA */
+.small {
+  font-size: 13px;
+  color: #888;
+  margin-top: 8px;
+}
+</style>
+</head>
+
+<body>
+
 <div class="premium-calc">
 
-  <h2>Simula tu financiamiento</h2>
+  <h2>¿Cuánto podrías pagar por tu lote?</h2>
 
   <div class="circle">
     <div class="inner">
@@ -8,6 +125,10 @@
       <p>Mensual</p>
     </div>
   </div>
+
+  <p style="font-size:14px; color:#666;">
+  Este podría ser tu pago mensual aproximado
+  </p>
 
   <div class="inputs">
     <input type="number" id="price" placeholder="Valor del lote ($)">
@@ -23,92 +144,32 @@
   </div>
 
   <a id="ctaPremium" class="cta" target="_blank">
-    Hablar con asesor ahora
+    Quiero este plan de financiamiento
   </a>
+
+  <p class="small">Responde en menos de 5 minutos</p>
 
 </div>
 
-<style>
-.premium-calc {
-  background: white;
-  padding: 25px;
-  border-radius: 20px;
-  max-width: 420px;
-  margin: auto;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-
-/* CÍRCULO */
-.circle {
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  margin: 20px auto;
-  background: conic-gradient(#22c55e 0%, #e5e7eb 0%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.inner {
-  background: white;
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.inner span {
-  font-size: 28px;
-  font-weight: bold;
-  color: #16a34a;
-}
-
-/* INPUTS */
-.inputs {
-  display: grid;
-  gap: 10px;
-}
-
-input {
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-}
-
-/* BOTÓN */
-button {
-  margin-top: 15px;
-  width: 100%;
-  padding: 12px;
-  background: #0f172a;
-  color: white;
-  border-radius: 10px;
-  border: none;
-}
-
-/* DETALLES */
-.details {
-  margin-top: 15px;
-  text-align: left;
-}
-
-/* CTA */
-.cta {
-  display: block;
-  margin-top: 20px;
-  padding: 14px;
-  background: #25D366;
-  color: white;
-  border-radius: 10px;
-  text-decoration: none;
-}
-</style>
-
 <script>
+function animateValue(start, end, duration) {
+  let startTime = null;
+
+  function animation(currentTime) {
+    if (!startTime) startTime = currentTime;
+    let progress = currentTime - startTime;
+    let value = Math.min(progress / duration, 1) * (end - start) + start;
+
+    document.getElementById("monthly").innerText = "$" + value.toFixed(0);
+
+    if (progress < duration) {
+      requestAnimationFrame(animation);
+    }
+  }
+
+  requestAnimationFrame(animation);
+}
+
 function calculatePremium() {
 
   let price = parseFloat(document.getElementById('price').value) || 0;
@@ -122,19 +183,21 @@ function calculatePremium() {
   let monthly = (loan * rate) / (1 - Math.pow(1 + rate, -payments));
   if (!isFinite(monthly)) monthly = 0;
 
-  monthly = monthly.toFixed(2);
+  animateValue(0, monthly, 800);
 
-  document.getElementById('monthly').innerText = "$" + monthly;
-  document.getElementById('entrada').innerText = "$" + down;
-  document.getElementById('loan').innerText = "$" + loan;
+  document.getElementById('entrada').innerText = "$" + down.toFixed(0);
+  document.getElementById('loan').innerText = "$" + loan.toFixed(0);
 
-  // Animación círculo
-  let percent = Math.min((monthly / 1000) * 100, 100);
+  // CÍRCULO DINÁMICO
+  let percent = Math.min((monthly / 500) * 100, 100);
   document.querySelector('.circle').style.background =
     `conic-gradient(#22c55e ${percent}%, #e5e7eb ${percent}%)`;
 
-  // WhatsApp dinámico
-  let link = "https://wa.me/593XXXXXXXXX?text=Hola,%20puedo%20pagar%20aprox%20$" + monthly + "%20mensuales%20y%20quiero%20información";
+  // WHATSAPP DINÁMICO (CAMBIA TU NÚMERO)
+  let link = "https://wa.me/593987852475?text=Hola,%20puedo%20pagar%20aprox%20$" + monthly.toFixed(0) + "%20mensuales%20y%20quiero%20información";
   document.getElementById('ctaPremium').href = link;
 }
 </script>
+
+</body>
+</html>
