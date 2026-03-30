@@ -1,87 +1,140 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>Ramón Balcázar Bienes Raíces</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body { font-family: Arial; margin: 0; background: #f5f5f5; }
-.hero { background: #0f172a; color: white; padding: 60px 20px; text-align: center; }
-.hero h1 { font-size: 28px; }
-.hero button { margin-top: 20px; padding: 15px 25px; border: none; border-radius: 10px; background: #22c55e; color: white; font-size: 16px; cursor: pointer; }
-.section { padding: 40px 20px; text-align: center; background: white; margin-bottom: 10px; }
-.grid { display: grid; gap: 15px; }
-.card { background: #f1f5f9; padding: 20px; border-radius: 12px; }
-.calc { max-width: 500px; margin: auto; }
-input { padding: 12px; border-radius: 10px; border: 1px solid #ccc; width: 100%; }
-button.calc-btn { margin-top: 15px; width: 100%; padding: 12px; background: #0f172a; color: white; border: none; border-radius: 10px; }
-.result { font-size: 26px; color: #16a34a; margin-top: 15px; }
-.whatsapp { display: block; margin-top: 10px; padding: 12px; background: #25D366; color: white; border-radius: 10px; text-decoration: none; }
-</style>
-</head>
-<body>
+<div class="premium-calc">
 
-<div class="hero">
-  <h1>Invierte en tu lote en Machala</h1>
-  <p>Simula tu financiamiento y descubre cuánto pagarías mensual</p>
-  <button onclick="scrollToCalc()">Simular ahora</button>
-</div>
+  <h2>Simula tu financiamiento</h2>
 
-<div class="section">
-  <h2>¿Por qué invertir?</h2>
-  <div class="grid">
-    <div class="card">Alta plusvalía</div>
-    <div class="card">Ubicación estratégica</div>
-    <div class="card">Financiamiento accesible</div>
+  <div class="circle">
+    <div class="inner">
+      <span id="monthly">$0</span>
+      <p>Mensual</p>
+    </div>
   </div>
-</div>
 
-<div class="section calc" id="calc">
-  <h2>Calculadora de financiamiento</h2>
-  <div class="grid">
+  <div class="inputs">
     <input type="number" id="price" placeholder="Valor del lote ($)">
     <input type="number" id="down" placeholder="Entrada ($)">
-    <input type="number" id="rate" placeholder="Tasa (%)">
     <input type="number" id="years" placeholder="Años">
   </div>
 
-  <button class="calc-btn" onclick="calculate()">Calcular</button>
-  <div class="result" id="result">$0</div>
-  <p>💡 Este valor es estimado</p>
+  <button onclick="calculatePremium()">Calcular</button>
 
-  <a class="whatsapp" href="https://wa.me/593XXXXXXXXX">
-     Hablar con asesor
+  <div class="details">
+    <p><strong>Entrada:</strong> <span id="entrada">$0</span></p>
+    <p><strong>Monto financiado:</strong> <span id="loan">$0</span></p>
+  </div>
+
+  <a id="ctaPremium" class="cta" target="_blank">
+    Hablar con asesor ahora
   </a>
+
 </div>
 
-<div class="section">
-  <h2>Agenda tu visita hoy</h2>
-  <a class="whatsapp" href="https://wa.me/593XXXXXXXXX">
-     Contactar por WhatsApp
-  </a>
-</div>
+<style>
+.premium-calc {
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  max-width: 420px;
+  margin: auto;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+/* CÍRCULO */
+.circle {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  margin: 20px auto;
+  background: conic-gradient(#22c55e 0%, #e5e7eb 0%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inner {
+  background: white;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.inner span {
+  font-size: 28px;
+  font-weight: bold;
+  color: #16a34a;
+}
+
+/* INPUTS */
+.inputs {
+  display: grid;
+  gap: 10px;
+}
+
+input {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+/* BOTÓN */
+button {
+  margin-top: 15px;
+  width: 100%;
+  padding: 12px;
+  background: #0f172a;
+  color: white;
+  border-radius: 10px;
+  border: none;
+}
+
+/* DETALLES */
+.details {
+  margin-top: 15px;
+  text-align: left;
+}
+
+/* CTA */
+.cta {
+  display: block;
+  margin-top: 20px;
+  padding: 14px;
+  background: #25D366;
+  color: white;
+  border-radius: 10px;
+  text-decoration: none;
+}
+</style>
 
 <script>
-function calculate() {
+function calculatePremium() {
+
   let price = parseFloat(document.getElementById('price').value) || 0;
   let down = parseFloat(document.getElementById('down').value) || 0;
-  let rate = parseFloat(document.getElementById('rate').value) / 100 / 12 || 0;
   let years = parseFloat(document.getElementById('years').value) || 0;
 
+  let rate = 0.075 / 12;
   let loan = price - down;
   let payments = years * 12;
 
   let monthly = (loan * rate) / (1 - Math.pow(1 + rate, -payments));
-
   if (!isFinite(monthly)) monthly = 0;
 
-  document.getElementById('result').innerText = "$" + monthly.toFixed(2);
-}
+  monthly = monthly.toFixed(2);
 
-function scrollToCalc() {
-  document.getElementById('calc').scrollIntoView({behavior: 'smooth'});
+  document.getElementById('monthly').innerText = "$" + monthly;
+  document.getElementById('entrada').innerText = "$" + down;
+  document.getElementById('loan').innerText = "$" + loan;
+
+  // Animación círculo
+  let percent = Math.min((monthly / 1000) * 100, 100);
+  document.querySelector('.circle').style.background =
+    `conic-gradient(#22c55e ${percent}%, #e5e7eb ${percent}%)`;
+
+  // WhatsApp dinámico
+  let link = "https://wa.me/593XXXXXXXXX?text=Hola,%20puedo%20pagar%20aprox%20$" + monthly + "%20mensuales%20y%20quiero%20información";
+  document.getElementById('ctaPremium').href = link;
 }
 </script>
-
-</body>
-</html>
