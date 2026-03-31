@@ -2,39 +2,39 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Ramón Balcázar Bienes Raíces</title>
+<title>Simulador Hipotecario</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body {
   font-family: Arial;
   margin: 0;
-  background: linear-gradient(135deg, #0f172a, #1e293b);
+  background: #f5f7fb;
 }
 
-/* CONTENEDOR */
-.premium-calc {
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+/* RESULTADO */
+.result-box {
   background: white;
   padding: 30px;
   border-radius: 20px;
-  max-width: 420px;
-  margin: 40px auto;
   text-align: center;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
-/* TITULO */
-h2 {
-  margin-bottom: 10px;
-}
-
-/* CÍRCULO */
 .circle {
   width: 200px;
   height: 200px;
+  margin: auto;
   border-radius: 50%;
-  margin: 20px auto;
-  background: conic-gradient(#22c55e 0%, #e5e7eb 0%);
+  background: conic-gradient(#ef476f 0%, #e5e7eb 0%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -51,20 +51,32 @@ h2 {
 }
 
 .inner span {
-  font-size: 42px;
+  font-size: 32px;
   font-weight: bold;
-  color: #22c55e;
 }
 
-.inner p {
-  margin: 0;
+.breakdown {
+  margin-top: 20px;
+  text-align: left;
 }
 
-/* INPUTS */
-.inputs {
+.breakdown p {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+}
+
+/* FORM */
+.form-box {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.grid {
   display: grid;
-  gap: 10px;
-  margin-top: 15px;
+  gap: 12px;
 }
 
 input {
@@ -73,130 +85,133 @@ input {
   border: 1px solid #ddd;
 }
 
-/* BOTÓN CALCULAR */
 button {
   margin-top: 15px;
-  width: 100%;
   padding: 12px;
+  border: none;
   background: #0f172a;
   color: white;
   border-radius: 10px;
-  border: none;
-  cursor: pointer;
+  width: 100%;
 }
 
-/* DETALLES */
-.details {
-  margin-top: 15px;
-  text-align: left;
-  font-size: 14px;
-}
-
-/* CTA */
 .cta {
+  margin-top: 15px;
   display: block;
-  margin-top: 20px;
-  padding: 14px;
+  padding: 12px;
   background: #25D366;
   color: white;
+  text-align: center;
   border-radius: 10px;
   text-decoration: none;
-  font-weight: bold;
-}
-
-/* TEXTO EXTRA */
-.small {
-  font-size: 13px;
-  color: #888;
-  margin-top: 8px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="premium-calc">
+<div class="container">
 
-  <h2>¿Cuánto podrías pagar por tu lote?</h2>
+  <!-- RESULTADO -->
+  <div class="result-box">
 
-  <div class="circle">
-    <div class="inner">
-      <span id="monthly">$0</span>
-      <p>Mensual</p>
+    <h2>Pago mensual</h2>
+
+    <div class="circle">
+      <div class="inner">
+        <span id="monthly">$0</span>
+        <p>Mensual</p>
+      </div>
     </div>
+
+    <div class="breakdown">
+      <p><span>Entrada</span><span id="down">$0</span></p>
+      <p><span>Monto del préstamo</span><span id="loan">$0</span></p>
+      <p><span>Cuota mensual</span><span id="mortgage">$0</span></p>
+      <p><span>Impuesto</span><span id="tax">$0</span></p>
+      <p><span>Seguro</span><span id="insurance">$0</span></p>
+    </div>
+
   </div>
 
-  <p style="font-size:14px; color:#666;">
-  Este podría ser tu pago mensual aproximado
-  </p>
+  <!-- FORMULARIO -->
+  <div class="form-box">
 
-  <div class="inputs">
-    <input type="number" id="price" placeholder="Valor del lote ($)">
-    <input type="number" id="down" placeholder="Entrada ($)">
-    <input type="number" id="years" placeholder="Años">
+    <h2>Simulación</h2>
+
+    <div class="grid">
+      <input type="number" id="price" placeholder="Valor total ($)">
+      <input type="number" id="downPercent" placeholder="Entrada (%)" value="30">
+      <input type="number" id="rate" placeholder="Tasa anual (%)" value="8.5">
+      <input type="number" id="years" placeholder="Años">
+      <input type="number" id="taxPercent" placeholder="Impuesto (%)" value="1.2">
+      <input type="number" id="insurance" placeholder="Seguro anual ($)" value="1000">
+    </div>
+
+    <button onclick="calculate()">Calcular</button>
+
+    <a id="cta" class="cta" target="_blank">
+      Quiero este financiamiento
+    </a>
+
   </div>
-
-  <button onclick="calculatePremium()">Calcular</button>
-
-  <div class="details">
-    <p><strong>Entrada:</strong> <span id="entrada">$0</span></p>
-    <p><strong>Monto financiado:</strong> <span id="loan">$0</span></p>
-  </div>
-
-  <a id="ctaPremium" class="cta" target="_blank">
-    Quiero este plan de financiamiento
-  </a>
-
-  <p class="small">Responde en menos de 5 minutos</p>
 
 </div>
 
 <script>
-function animateValue(start, end, duration) {
-  let startTime = null;
+function calculate() {
 
-  function animation(currentTime) {
-    if (!startTime) startTime = currentTime;
-    let progress = currentTime - startTime;
-    let value = Math.min(progress / duration, 1) * (end - start) + start;
+  let price = parseFloat(priceInput.value) || 0;
+  let downPercent = parseFloat(downPercentInput.value) || 30;
+  let rateAnnual = parseFloat(rateInput.value) || 8.5;
+  let years = parseFloat(yearsInput.value) || 0;
+  let taxPercent = parseFloat(taxPercentInput.value) || 1.2;
+  let insuranceAnnual = parseFloat(insuranceInput.value) || 0;
 
-    document.getElementById("monthly").innerText = "$" + value.toFixed(0);
-
-    if (progress < duration) {
-      requestAnimationFrame(animation);
-    }
-  }
-
-  requestAnimationFrame(animation);
-}
-
-function calculatePremium() {
-
-  let price = parseFloat(document.getElementById('price').value) || 0;
-  let down = parseFloat(document.getElementById('down').value) || 0;
-  let years = parseFloat(document.getElementById('years').value) || 0;
-
-  let rate = 0.075 / 12;
+  let down = price * (downPercent / 100);
   let loan = price - down;
+
+  let rate = (rateAnnual / 100) / 12;
   let payments = years * 12;
 
-  let monthly = (loan * rate) / (1 - Math.pow(1 + rate, -payments));
-  if (!isFinite(monthly)) monthly = 0;
+  let mortgage = (loan * rate) / (1 - Math.pow(1 + rate, -payments));
+  if (!isFinite(mortgage)) mortgage = 0;
 
-  animateValue(0, monthly, 800);
+  let tax = (price * (taxPercent / 100)) / 12;
+  let insurance = insuranceAnnual / 12;
 
-  document.getElementById('entrada').innerText = "$" + down.toFixed(0);
-  document.getElementById('loan').innerText = "$" + loan.toFixed(0);
+  let total = mortgage + tax + insurance;
 
-  // CÍRCULO DINÁMICO
-  let percent = Math.min((monthly / 500) * 100, 100);
+  monthly.innerText = "$" + total.toFixed(2);
+  downEl.innerText = "$" + down.toFixed(2);
+  loanEl.innerText = "$" + loan.toFixed(2);
+  mortgageEl.innerText = "$" + mortgage.toFixed(2);
+  taxEl.innerText = "$" + tax.toFixed(2);
+  insuranceEl.innerText = "$" + insurance.toFixed(2);
+
+  let percent = Math.min((total / 1500) * 100, 100);
   document.querySelector('.circle').style.background =
-    `conic-gradient(#22c55e ${percent}%, #e5e7eb ${percent}%)`;
+    `conic-gradient(#ef476f ${percent}%, #e5e7eb ${percent}%)`;
 
-  // WHATSAPP DINÁMICO (CAMBIA TU NÚMERO)
-  let link = "https://wa.me/593987852475?text=Hola,%20puedo%20pagar%20aprox%20$" + monthly.toFixed(0) + "%20mensuales%20y%20quiero%20información";
-  document.getElementById('ctaPremium').href = link;
+  let link = "https://wa.me/593XXXXXXXXX?text=Hola,%20mi%20cuota%20estimada%20es%20$" + total.toFixed(0);
+  cta.href = link;
 }
+
+// referencias
+const priceInput = document.getElementById('price');
+const downPercentInput = document.getElementById('downPercent');
+const rateInput = document.getElementById('rate');
+const yearsInput = document.getElementById('years');
+const taxPercentInput = document.getElementById('taxPercent');
+const insuranceInput = document.getElementById('insurance');
+
+const monthly = document.getElementById('monthly');
+const downEl = document.getElementById('down');
+const loanEl = document.getElementById('loan');
+const mortgageEl = document.getElementById('mortgage');
+const taxEl = document.getElementById('tax');
+const insuranceEl = document.getElementById('insurance');
+const cta = document.getElementById('cta');
 </script>
 
 </body>
