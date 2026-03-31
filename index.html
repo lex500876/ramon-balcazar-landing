@@ -51,7 +51,7 @@ body {
 }
 
 .inner span {
-  font-size: 32px;
+  font-size: 34px;
   font-weight: bold;
 }
 
@@ -93,6 +93,7 @@ button {
   color: white;
   border-radius: 10px;
   width: 100%;
+  cursor: pointer;
 }
 
 .cta {
@@ -104,6 +105,13 @@ button {
   text-align: center;
   border-radius: 10px;
   text-decoration: none;
+  font-weight: bold;
+}
+
+.small {
+  font-size: 12px;
+  color: #888;
+  margin-top: 10px;
 }
 </style>
 </head>
@@ -115,7 +123,7 @@ button {
   <!-- RESULTADO -->
   <div class="result-box">
 
-    <h2>Pago mensual</h2>
+    <h2>Pago mensual estimado</h2>
 
     <div class="circle">
       <div class="inner">
@@ -129,7 +137,7 @@ button {
       <p><span>Monto del préstamo</span><span id="loan">$0</span></p>
       <p><span>Cuota mensual</span><span id="mortgage">$0</span></p>
       <p><span>Impuesto</span><span id="tax">$0</span></p>
-      <p><span>Seguro</span><span id="insurance">$0</span></p>
+      <p><span>Seguro</span><span id="insuranceResult">$0</span></p>
     </div>
 
   </div>
@@ -154,6 +162,10 @@ button {
       Quiero este financiamiento
     </a>
 
+    <p class="small">
+      Tasa referencial del mercado ecuatoriano. Puede variar según entidad financiera.
+    </p>
+
   </div>
 
 </div>
@@ -161,12 +173,12 @@ button {
 <script>
 function calculate() {
 
-  let price = parseFloat(priceInput.value) || 0;
-  let downPercent = parseFloat(downPercentInput.value) || 30;
-  let rateAnnual = parseFloat(rateInput.value) || 8.5;
-  let years = parseFloat(yearsInput.value) || 0;
-  let taxPercent = parseFloat(taxPercentInput.value) || 1.2;
-  let insuranceAnnual = parseFloat(insuranceInput.value) || 0;
+  let price = parseFloat(document.getElementById('price').value) || 0;
+  let downPercent = parseFloat(document.getElementById('downPercent').value) || 30;
+  let rateAnnual = parseFloat(document.getElementById('rate').value) || 8.5;
+  let years = parseFloat(document.getElementById('years').value) || 0;
+  let taxPercent = parseFloat(document.getElementById('taxPercent').value) || 1.2;
+  let insuranceAnnual = parseFloat(document.getElementById('insurance').value) || 0;
 
   let down = price * (downPercent / 100);
   let loan = price - down;
@@ -182,19 +194,22 @@ function calculate() {
 
   let total = mortgage + tax + insurance;
 
-  monthly.innerText = "$" + total.toFixed(2);
-  downEl.innerText = "$" + down.toFixed(2);
-  loanEl.innerText = "$" + loan.toFixed(2);
-  mortgageEl.innerText = "$" + mortgage.toFixed(2);
-  taxEl.innerText = "$" + tax.toFixed(2);
-  insuranceEl.innerText = "$" + insurance.toFixed(2);
+  // MOSTRAR DATOS
+  document.getElementById('monthly').innerText = "$" + total.toFixed(2);
+  document.getElementById('down').innerText = "$" + down.toFixed(2);
+  document.getElementById('loan').innerText = "$" + loan.toFixed(2);
+  document.getElementById('mortgage').innerText = "$" + mortgage.toFixed(2);
+  document.getElementById('tax').innerText = "$" + tax.toFixed(2);
+  document.getElementById('insuranceResult').innerText = "$" + insurance.toFixed(2);
 
+  // CÍRCULO
   let percent = Math.min((total / 1500) * 100, 100);
   document.querySelector('.circle').style.background =
     `conic-gradient(#ef476f ${percent}%, #e5e7eb ${percent}%)`;
 
+  // MENSAJE WHATSAPP COMPLETO
   let message = `
-Hola, estoy interesado en un lote.
+Hola, vi la simulación y quiero más información:
 
 Valor del lote: $${price.toFixed(0)}
 Entrada: ${downPercent}% ($${down.toFixed(0)})
@@ -206,28 +221,9 @@ Tasa: ${rateAnnual}%
 Cuota mensual estimada: $${total.toFixed(0)}
 `;
 
-let encodedMessage = encodeURIComponent(message);
-
-let link = "https://wa.me/593XXXXXXXXX?text=" + encodedMessage;
-
-cta.href = link;
+  let link = "https://wa.me/593XXXXXXXXX?text=" + encodeURIComponent(message);
+  document.getElementById('cta').href = link;
 }
-
-// referencias
-const priceInput = document.getElementById('price');
-const downPercentInput = document.getElementById('downPercent');
-const rateInput = document.getElementById('rate');
-const yearsInput = document.getElementById('years');
-const taxPercentInput = document.getElementById('taxPercent');
-const insuranceInput = document.getElementById('insurance');
-
-const monthly = document.getElementById('monthly');
-const downEl = document.getElementById('down');
-const loanEl = document.getElementById('loan');
-const mortgageEl = document.getElementById('mortgage');
-const taxEl = document.getElementById('tax');
-const insuranceEl = document.getElementById('insurance');
-const cta = document.getElementById('cta');
 </script>
 
 </body>
