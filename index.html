@@ -193,8 +193,24 @@ function calculate() {
   document.querySelector('.circle').style.background =
     `conic-gradient(#ef476f ${percent}%, #e5e7eb ${percent}%)`;
 
-  let link = "https://wa.me/593XXXXXXXXX?text=Hola,%20mi%20cuota%20estimada%20es%20$" + total.toFixed(0);
-  cta.href = link;
+  let message = `
+Hola, estoy interesado en un lote.
+
+Valor del lote: $${price.toFixed(0)}
+Entrada: ${downPercent}% ($${down.toFixed(0)})
+Monto financiado: $${loan.toFixed(0)}
+
+Plazo: ${years} años
+Tasa: ${rateAnnual}%
+
+Cuota mensual estimada: $${total.toFixed(0)}
+`;
+
+let encodedMessage = encodeURIComponent(message);
+
+let link = "https://wa.me/593XXXXXXXXX?text=" + encodedMessage;
+
+cta.href = link;
 }
 
 // referencias
