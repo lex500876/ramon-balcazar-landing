@@ -1,2 +1,230 @@
-<h2>En mantenimiento</h2>
-<p>Estamos realizando mejoras, vuelve pronto.</p>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Simulador Hipotecario</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial;
+  margin: 0;
+  background: #f5f7fb;
+}
+
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+/* RESULTADO */
+.result-box {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.circle {
+  width: 200px;
+  height: 200px;
+  margin: auto;
+  border-radius: 50%;
+  background: conic-gradient(#ef476f 0%, #e5e7eb 0%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inner {
+  background: white;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.inner span {
+  font-size: 34px;
+  font-weight: bold;
+}
+
+.breakdown {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.breakdown p {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+}
+
+/* FORM */
+.form-box {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.grid {
+  display: grid;
+  gap: 12px;
+}
+
+input {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+button {
+  margin-top: 15px;
+  padding: 12px;
+  border: none;
+  background: #0f172a;
+  color: white;
+  border-radius: 10px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.cta {
+  margin-top: 15px;
+  display: block;
+  padding: 12px;
+  background: #25D366;
+  color: white;
+  text-align: center;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.small {
+  font-size: 12px;
+  color: #888;
+  margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- RESULTADO -->
+  <div class="result-box">
+
+    <h2>Pago mensual estimado</h2>
+
+    <div class="circle">
+      <div class="inner">
+        <span id="monthly">$0</span>
+        <p>Mensual</p>
+      </div>
+    </div>
+
+    <div class="breakdown">
+      <p><span>Entrada</span><span id="down">$0</span></p>
+      <p><span>Monto del préstamo</span><span id="loan">$0</span></p>
+      <p><span>Cuota mensual</span><span id="mortgage">$0</span></p>
+      <p><span>Impuesto</span><span id="tax">$0</span></p>
+      <p><span>Seguro</span><span id="insuranceResult">$0</span></p>
+    </div>
+
+  </div>
+
+  <!-- FORMULARIO -->
+  <div class="form-box">
+
+    <h2>Simulación</h2>
+
+    <div class="grid">
+      <input type="number" id="price" placeholder="Valor total ($)">
+      <input type="number" id="downPercent" placeholder="Entrada (%)" value="30">
+      <input type="number" id="rate" placeholder="Tasa anual (%)" value="8.5">
+      <input type="number" id="years" placeholder="Años">
+      <input type="number" id="taxPercent" placeholder="Impuesto (%)" value="1.2">
+      <input type="number" id="insurance" placeholder="Seguro anual ($)" value="1000">
+    </div>
+
+    <button onclick="calculate()">Calcular</button>
+
+    <a id="cta" class="cta" target="_blank">
+      Quiero este financiamiento
+    </a>
+
+    <p class="small">
+      Tasa referencial del mercado ecuatoriano. Puede variar según entidad financiera.
+    </p>
+
+  </div>
+
+</div>
+
+<script>
+function calculate() {
+
+  let price = parseFloat(document.getElementById('price').value) || 0;
+  let downPercent = parseFloat(document.getElementById('downPercent').value) || 30;
+  let rateAnnual = parseFloat(document.getElementById('rate').value) || 8.5;
+  let years = parseFloat(document.getElementById('years').value) || 0;
+  let taxPercent = parseFloat(document.getElementById('taxPercent').value) || 1.2;
+  let insuranceAnnual = parseFloat(document.getElementById('insurance').value) || 0;
+
+  let down = price * (downPercent / 100);
+  let loan = price - down;
+
+  let rate = (rateAnnual / 100) / 12;
+  let payments = years * 12;
+
+  let mortgage = (loan * rate) / (1 - Math.pow(1 + rate, -payments));
+  if (!isFinite(mortgage)) mortgage = 0;
+
+  let tax = (price * (taxPercent / 100)) / 12;
+  let insurance = insuranceAnnual / 12;
+
+  let total = mortgage + tax + insurance;
+
+  // MOSTRAR DATOS
+  document.getElementById('monthly').innerText = "$" + total.toFixed(2);
+  document.getElementById('down').innerText = "$" + down.toFixed(2);
+  document.getElementById('loan').innerText = "$" + loan.toFixed(2);
+  document.getElementById('mortgage').innerText = "$" + mortgage.toFixed(2);
+  document.getElementById('tax').innerText = "$" + tax.toFixed(2);
+  document.getElementById('insuranceResult').innerText = "$" + insurance.toFixed(2);
+
+  // CÍRCULO
+  let percent = Math.min((total / 1500) * 100, 100);
+  document.querySelector('.circle').style.background =
+    `conic-gradient(#ef476f ${percent}%, #e5e7eb ${percent}%)`;
+
+  // MENSAJE WHATSAPP COMPLETO
+  let message = `
+Hola, vi la simulación y quiero más información:
+
+Valor del lote: $${price.toFixed(0)}
+Entrada: ${downPercent}% ($${down.toFixed(0)})
+Monto financiado: $${loan.toFixed(0)}
+
+Plazo: ${years} años
+Tasa: ${rateAnnual}%
+
+Cuota mensual estimada: $${total.toFixed(0)}
+`;
+
+  let link = "https://wa.me/593987852475?text=" + encodeURIComponent(message);
+  document.getElementById('cta').href = link;
+}
+</script>
+
+</body>
+</html>
