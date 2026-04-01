@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Simulador</title>
+<title>Simulador de Financiamiento</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -13,7 +13,7 @@ body {
 }
 
 .container {
-  max-width: 900px;
+  max-width: 950px;
   margin: 40px auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -64,11 +64,17 @@ body {
 .breakdown p {
   display: flex;
   justify-content: space-between;
+  margin: 6px 0;
+}
+
+label {
+  font-size: 14px;
+  font-weight: bold;
 }
 
 .grid {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 input {
@@ -85,6 +91,7 @@ button {
   color: white;
   border-radius: 10px;
   width: 100%;
+  cursor: pointer;
 }
 
 .cta {
@@ -96,6 +103,7 @@ button {
   text-align: center;
   border-radius: 10px;
   text-decoration: none;
+  font-weight: bold;
 }
 </style>
 </head>
@@ -104,6 +112,7 @@ button {
 
 <div class="container">
 
+<!-- RESULTADO -->
 <div class="result-box">
   <h2>Pago mensual</h2>
 
@@ -118,87 +127,111 @@ button {
     <p><span style="color:#ef476f;">● Entrada</span><span id="down">$0</span></p>
     <p><span style="color:#118ab2;">● Financiamiento</span><span id="loan">$0</span></p>
     <p><span style="color:#ffd166;">● Cuota mensual</span><span id="mortgage">$0</span></p>
+    <p><span style="color:#06d6a0;">● Interés total</span><span id="interest">$0</span></p>
   </div>
 </div>
 
+<!-- FORMULARIO -->
 <div class="form-box">
   <h2>Simulación</h2>
 
   <div class="grid">
-    <input type="number" id="price" placeholder="Valor ($)">
+
+    <label>Valor del lote ($)</label>
+    <input type="number" id="price">
+
+    <label>Porcentaje de entrada (%)</label>
     <input type="number" id="downPercent" value="30">
+
+    <label>Tasa de interés anual (%)</label>
     <input type="number" id="rate" value="8.5">
+
+    <label>Plazo (años)</label>
     <input type="number" id="years">
+
   </div>
 
-  <button onclick="calc()">Calcular</button>
+  <button onclick="calculate()">Calcular</button>
 
-  <a id="cta" class="cta" target="_blank">Solicitar info</a>
+  <a id="cta" class="cta" target="_blank">
+    Solicitar información
+  </a>
 </div>
 
 </div>
 
 <script>
 
-function money(v){
+function formatMoney(v){
   return "$" + v.toLocaleString("en-US", {maximumFractionDigits:0});
 }
 
-function calc(){
+function calculate(){
 
-  let price = +priceInput.value || 0;
-  let dp = +downPercent.value || 30;
-  let rate = (+rateInput.value/100)/12;
-  let years = +yearsInput.value || 0;
+  let price = parseFloat(document.getElementById('price').value) || 0;
+  let dp = parseFloat(document.getElementById('downPercent').value) || 30;
+  let rateAnnual = parseFloat(document.getElementById('rate').value) || 8.5;
+  let years = parseFloat(document.getElementById('years').value) || 0;
 
-  let down = price*(dp/100);
-  let loan = price-down;
-  let n = years*12;
+  let down = price * (dp/100);
+  let loan = price - down;
 
-  let m = (loan*rate)/(1-Math.pow(1+rate,-n));
-  if(!isFinite(m)) m=0;
+  let rate = (rateAnnual/100)/12;
+  let n = years * 12;
 
-  monthly.innerText = money(m);
-  downEl.innerText = money(down);
-  loanEl.innerText = money(loan);
-  mortgageEl.innerText = money(m);
+  let mortgage = (loan * rate) / (1 - Math.pow(1 + rate, -n));
+  if(!isFinite(mortgage)) mortgage = 0;
 
-  // 🎯 LÓGICA VISUAL CORREGIDA
-  let entrada = (down/price)*70 || 0;
-  let prestamo = (loan/price)*70 || 0;
-  let cuota = 30; // SIEMPRE visible
+  let totalPaid = mortgage * n;
+  let interest = totalPaid - loan;
+
+  // Mostrar
+  monthly.innerText = formatMoney(mortgage);
+  downEl.innerText = formatMoney(down);
+  loanEl.innerText = formatMoney(loan);
+  mortgageEl.innerText = formatMoney(mortgage);
+  interestEl.innerText = formatMoney(interest);
+
+  // Rueda visual (estilo competencia mejorado)
+  let entrada = (down/price)*60 || 0;
+  let prestamo = (loan/price)*60 || 0;
+  let cuota = 25;
+  let interesVis = 15;
 
   circle.style.background = `
     conic-gradient(
       #ef476f 0% ${entrada}%,
       #118ab2 ${entrada}% ${entrada+prestamo}%,
-      #ffd166 ${entrada+prestamo}% ${entrada+prestamo+cuota}%
+      #ffd166 ${entrada+prestamo}% ${entrada+prestamo+cuota}%,
+      #06d6a0 ${entrada+prestamo+cuota}% 100%
     )
   `;
 
+  // WhatsApp
   let msg = `
-Hola, quiero info:
+Hola, quiero información:
 
-Valor: ${money(price)}
-Entrada: ${money(down)}
-Financiamiento: ${money(loan)}
-Cuota: ${money(m)}
+Valor del lote: ${formatMoney(price)}
+Entrada: ${formatMoney(down)}
+Financiamiento: ${formatMoney(loan)}
+
+Plazo: ${years} años
+Tasa: ${rateAnnual}%
+
+Cuota mensual: ${formatMoney(mortgage)}
+Interés total: ${formatMoney(interest)}
 `;
 
-  cta.href = "https://wa.me/593987852475?text="+encodeURIComponent(msg);
+  document.getElementById('cta').href =
+    "https://wa.me/593XXXXXXXXX?text=" + encodeURIComponent(msg);
 }
-
-const priceInput = document.getElementById('price');
-const downPercent = document.getElementById('downPercent');
-const rateInput = document.getElementById('rate');
-const yearsInput = document.getElementById('years');
 
 const monthly = document.getElementById('monthly');
 const downEl = document.getElementById('down');
 const loanEl = document.getElementById('loan');
 const mortgageEl = document.getElementById('mortgage');
+const interestEl = document.getElementById('interest');
 const circle = document.getElementById('circle');
-const cta = document.getElementById('cta');
 
 </script>
 
