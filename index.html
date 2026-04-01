@@ -120,9 +120,9 @@ button {
     </div>
 
     <div class="breakdown">
-      <p><span>Entrada</span><span id="down">$0</span></p>
-      <p><span>Monto financiado</span><span id="loan">$0</span></p>
-      <p><span>Cuota mensual</span><span id="mortgage">$0</span></p>
+      <p><span style="color:#ef476f;">● Entrada</span><span id="down">$0</span></p>
+      <p><span style="color:#118ab2;">● Monto financiado</span><span id="loan">$0</span></p>
+      <p><span style="color:#ffd166;">● Cuota mensual</span><span id="mortgage">$0</span></p>
     </div>
   </div>
 
@@ -179,19 +179,21 @@ function calculate() {
   document.getElementById('loan').innerText = formatMoney(loan);
   document.getElementById('mortgage').innerText = formatMoney(mortgage);
 
-  // Rueda con colores
+  // Rueda con 3 colores (entrada, préstamo, cuota indicador)
   let entradaPercent = (down / price) * 100 || 0;
   let loanPercent = (loan / price) * 100 || 0;
+  let cuotaPercent = Math.min((mortgage / 1000) * 20, 20);
 
   document.querySelector('.circle').style.background = `
     conic-gradient(
       #ef476f 0% ${entradaPercent}%,
       #118ab2 ${entradaPercent}% ${entradaPercent + loanPercent}%,
-      #e5e7eb ${entradaPercent + loanPercent}% 100%
+      #ffd166 ${entradaPercent + loanPercent}% ${entradaPercent + loanPercent + cuotaPercent}%,
+      #e5e7eb ${entradaPercent + loanPercent + cuotaPercent}% 100%
     )
   `;
 
-  // WhatsApp
+  // WhatsApp con datos completos
   let message = `
 Hola, vi la simulación y quiero información:
 
