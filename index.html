@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Simulador Hipotecario</title>
+<title>Simulador de Financiamiento</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -20,13 +20,15 @@ body {
   gap: 30px;
 }
 
-/* RESULTADO */
-.result-box {
+.result-box, .form-box {
   background: white;
   padding: 30px;
   border-radius: 20px;
-  text-align: center;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.result-box {
+  text-align: center;
 }
 
 .circle {
@@ -34,7 +36,7 @@ body {
   height: 200px;
   margin: auto;
   border-radius: 50%;
-  background: conic-gradient(#ef476f 0%, #e5e7eb 0%);
+  background: conic-gradient(#e5e7eb 0%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -51,7 +53,7 @@ body {
 }
 
 .inner span {
-  font-size: 34px;
+  font-size: 32px;
   font-weight: bold;
 }
 
@@ -64,14 +66,6 @@ body {
   display: flex;
   justify-content: space-between;
   margin: 8px 0;
-}
-
-/* FORM */
-.form-box {
-  background: white;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
 .grid {
@@ -107,12 +101,6 @@ button {
   text-decoration: none;
   font-weight: bold;
 }
-
-.small {
-  font-size: 12px;
-  color: #888;
-  margin-top: 10px;
-}
 </style>
 </head>
 
@@ -122,8 +110,7 @@ button {
 
   <!-- RESULTADO -->
   <div class="result-box">
-
-    <h2>Pago mensual estimado</h2>
+    <h2>Pago mensual</h2>
 
     <div class="circle">
       <div class="inner">
@@ -134,51 +121,46 @@ button {
 
     <div class="breakdown">
       <p><span>Entrada</span><span id="down">$0</span></p>
-      <p><span>Monto del préstamo</span><span id="loan">$0</span></p>
+      <p><span>Monto financiado</span><span id="loan">$0</span></p>
       <p><span>Cuota mensual</span><span id="mortgage">$0</span></p>
-      <p><span>Impuesto</span><span id="tax">$0</span></p>
-      <p><span>Seguro</span><span id="insuranceResult">$0</span></p>
     </div>
-
   </div>
 
-  <!-- FORMULARIO -->
+  <!-- FORM -->
   <div class="form-box">
-
     <h2>Simulación</h2>
 
     <div class="grid">
-      <input type="number" id="price" placeholder="Valor total ($)">
-      <input type="number" id="downPercent" placeholder="Entrada (%)" value="30">
-      <input type="number" id="rate" placeholder="Tasa anual (%)" value="8.5">
+      <input type="number" id="price" placeholder="Valor del lote ($)">
+      <input type="number" id="downPercent" value="30" placeholder="Entrada (%)">
+      <input type="number" id="rate" value="8.5" placeholder="Tasa anual (%)">
       <input type="number" id="years" placeholder="Años">
-      <input type="number" id="taxPercent" placeholder="Impuesto (%)" value="1.2">
-      <input type="number" id="insurance" placeholder="Seguro anual ($)" value="1000">
     </div>
 
     <button onclick="calculate()">Calcular</button>
 
     <a id="cta" class="cta" target="_blank">
-      Quiero este financiamiento
+      Solicitar información
     </a>
-
-    <p class="small">
-      Tasa referencial del mercado ecuatoriano. Puede variar según entidad financiera.
-    </p>
-
   </div>
 
 </div>
 
 <script>
+
+function formatMoney(value) {
+  return "$" + value.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  });
+}
+
 function calculate() {
 
   let price = parseFloat(document.getElementById('price').value) || 0;
   let downPercent = parseFloat(document.getElementById('downPercent').value) || 30;
   let rateAnnual = parseFloat(document.getElementById('rate').value) || 8.5;
   let years = parseFloat(document.getElementById('years').value) || 0;
-  let taxPercent = parseFloat(document.getElementById('taxPercent').value) || 1.2;
-  let insuranceAnnual = parseFloat(document.getElementById('insurance').value) || 0;
 
   let down = price * (downPercent / 100);
   let loan = price - down;
@@ -189,41 +171,44 @@ function calculate() {
   let mortgage = (loan * rate) / (1 - Math.pow(1 + rate, -payments));
   if (!isFinite(mortgage)) mortgage = 0;
 
-  let tax = (price * (taxPercent / 100)) / 12;
-  let insurance = insuranceAnnual / 12;
+  let total = mortgage;
 
-  let total = mortgage + tax + insurance;
+  // Mostrar valores
+  document.getElementById('monthly').innerText = formatMoney(total);
+  document.getElementById('down').innerText = formatMoney(down);
+  document.getElementById('loan').innerText = formatMoney(loan);
+  document.getElementById('mortgage').innerText = formatMoney(mortgage);
 
-  // MOSTRAR DATOS
-  document.getElementById('monthly').innerText = "$" + total.toFixed(2);
-  document.getElementById('down').innerText = "$" + down.toFixed(2);
-  document.getElementById('loan').innerText = "$" + loan.toFixed(2);
-  document.getElementById('mortgage').innerText = "$" + mortgage.toFixed(2);
-  document.getElementById('tax').innerText = "$" + tax.toFixed(2);
-  document.getElementById('insuranceResult').innerText = "$" + insurance.toFixed(2);
+  // Rueda con colores
+  let entradaPercent = (down / price) * 100 || 0;
+  let loanPercent = (loan / price) * 100 || 0;
 
-  // CÍRCULO
-  let percent = Math.min((total / 1500) * 100, 100);
-  document.querySelector('.circle').style.background =
-    `conic-gradient(#ef476f ${percent}%, #e5e7eb ${percent}%)`;
+  document.querySelector('.circle').style.background = `
+    conic-gradient(
+      #ef476f 0% ${entradaPercent}%,
+      #118ab2 ${entradaPercent}% ${entradaPercent + loanPercent}%,
+      #e5e7eb ${entradaPercent + loanPercent}% 100%
+    )
+  `;
 
-  // MENSAJE WHATSAPP COMPLETO
+  // WhatsApp
   let message = `
-Hola, vi la simulación y quiero más información:
+Hola, vi la simulación y quiero información:
 
-Valor del lote: $${price.toFixed(0)}
-Entrada: ${downPercent}% ($${down.toFixed(0)})
-Monto financiado: $${loan.toFixed(0)}
+Valor del lote: ${formatMoney(price)}
+Entrada: ${downPercent}% (${formatMoney(down)})
+Monto financiado: ${formatMoney(loan)}
 
 Plazo: ${years} años
 Tasa: ${rateAnnual}%
 
-Cuota mensual estimada: $${total.toFixed(0)}
+Cuota mensual estimada: ${formatMoney(total)}
 `;
 
-  let link = "https://wa.me/593987852475?text=" + encodeURIComponent(message);
+  let link = "https://wa.me/593XXXXXXXXX?text=" + encodeURIComponent(message);
   document.getElementById('cta').href = link;
 }
+
 </script>
 
 </body>
